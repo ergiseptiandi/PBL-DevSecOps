@@ -21,9 +21,10 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # gitleaks butuh history untuk mendeteksi secret lama
-      - uses: gitleaks/gitleaks-action@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Gitleaks (container ghcr.io)
+        run: |
+          docker run --rm -v "$PWD:/repo:ro" ghcr.io/gitleaks/gitleaks:v8 \
+            detect --source /repo --redact -f text --exit-code 1
 
   backend:
     name: 🐍 Backend (Bandit · pip-audit · Pytest)
@@ -93,22 +94,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Scan filesystem (vulnerability dependency)
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          scan-type: fs
-          scan-ref: .
-          severity: HIGH,CRITICAL
-          exit-code: "1"
-          ignore-unfixed: true
-          format: table
+        run: |
+          docker run --rm -v "$PWD:/src:ro" ghcr.io/aquasecurity/trivy:latest \
+            fs --scanners vuln --severity HIGH,CRITICAL --ignore-unfixed \
+            --exit-code 1 /src
       - name: Scan config (Dockerfile & compose misconfig)
-        uses: aquasecurity/trivy-action@0.24.0
-        with:
-          scan-type: config
-          scan-ref: .
-          severity: HIGH,CRITICAL
-          exit-code: "1"
-          format: table
+        run: |
+          docker run --rm -v "$PWD:/src:ro" ghcr.io/aquasecurity/trivy:latest \
+            config --severity HIGH,CRITICAL --exit-code 1 /src
 
   deploy:
     name: 🚀 Deploy ke VPS (self-hosted runner)
