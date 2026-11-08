@@ -118,10 +118,8 @@ jobs:
     runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v5
-      # .env di server adalah sumber utama (sudah berisi kredensial Postgres
-      # shared, HTTP_PORT=8080, dst). Step ini hanya memastikan file ada &
-      # menimpa nilai yang MEMANG dikelola via GitHub Actions Variables.
-      # JANGAN menimpa POSTGRES_* dari sini — kredensial tidak disimpan di GH.
+      # .env di server adalah sumber utama (kredensial tidak disimpan di GitHub);
+      # step ini hanya menambah variabel yang belum ada.
       - name: Sinkronkan .env server (non-destruktif)
         run: |
           touch .env

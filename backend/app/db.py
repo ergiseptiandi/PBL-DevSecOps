@@ -1,4 +1,4 @@
-"""Koneksi database — semua query memakai ORM (anti SQL Injection)."""
+"""Koneksi database. Semua query memakai ORM SQLAlchemy (parameterized otomatis)."""
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker

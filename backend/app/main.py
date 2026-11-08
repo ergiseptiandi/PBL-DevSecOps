@@ -2,7 +2,7 @@
 
 Secure coding yang diterapkan (lihat README bagian Security):
 - Validasi input ketat (Pydantic v2, StrictBool, whitelist karakter).
-- Query via ORM SQLAlchemy = parameterized secara otomatis (anti SQLi).
+- Query via ORM SQLAlchemy = parameterized secara otomatis.
 - Rate limiting per-IP (slowapi).
 - Security headers di setiap response.
 - CORS whitelist eksplisit (bukan '*').

@@ -1,7 +1,4 @@
-"""Konfigurasi aplikasi dari environment variable (12-factor app).
-
-Tidak ada secret yang di-hardcode di source code.
-"""
+"""Konfigurasi aplikasi dari environment variable."""
 
 import os
 
