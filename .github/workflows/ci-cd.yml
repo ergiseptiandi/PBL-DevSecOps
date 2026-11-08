@@ -118,23 +118,24 @@ jobs:
     runs-on: [self-hosted, linux]
     steps:
       - uses: actions/checkout@v4
-      - name: Tulis .env dari GitHub Secrets/Variables
+      # .env di server adalah sumber utama (sudah berisi kredensial Postgres
+      # shared, HTTP_PORT=8080, dst). Step ini hanya memastikan file ada &
+      # menimpa nilai yang MEMANG dikelola via GitHub Actions Variables.
+      # JANGAN menimpa POSTGRES_* dari sini — kredensial tidak disimpan di GH.
+      - name: Sinkronkan .env server (non-destruktif)
         run: |
-          {
-            echo "POSTGRES_USER=${{ vars.POSTGRES_USER || 'tasks' }}"
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
-            echo "POSTGRES_DB=${{ vars.POSTGRES_DB || 'tasks' }}"
-            echo "BACKEND_BLUE_VERSION=${{ vars.BACKEND_BLUE_VERSION || '1.0.0' }}"
-            echo "BACKEND_GREEN_VERSION=${{ vars.BACKEND_GREEN_VERSION || '1.1.0' }}"
-            echo "ACTIVE_BACKEND=${{ vars.ACTIVE_BACKEND || 'backend-blue:8000' }}"
-            echo "HTTP_PORT=${{ vars.HTTP_PORT || '80' }}"
-            echo "CORS_ORIGINS=${{ vars.CORS_ORIGINS || 'http://localhost' }}"
-          } > .env
+          touch .env
+          chmod 600 .env
+          grep -q '^BACKEND_BLUE_VERSION=' .env || echo "BACKEND_BLUE_VERSION=1.0.0" >> .env
+          grep -q '^BACKEND_GREEN_VERSION=' .env || echo "BACKEND_GREEN_VERSION=1.1.0" >> .env
+          grep -q '^ACTIVE_BACKEND=' .env || echo "ACTIVE_BACKEND=backend-blue:8000" >> .env
+          grep -q '^HTTP_PORT=' .env || echo "HTTP_PORT=8080" >> .env
       - name: Build & restart container
         run: docker compose up -d --build
       - name: Smoke test
         run: |
           sleep 5
-          curl -fsS "http://localhost:${{ vars.HTTP_PORT || '80' }}/api/health"
+          PORT=$(grep '^HTTP_PORT=' .env | cut -d= -f2)
+          curl -fsS "http://localhost:${PORT:-8080}/api/health"
           echo
-          curl -fsS "http://localhost:${{ vars.HTTP_PORT || '80' }}/api/version"
+          curl -fsS "http://localhost:${PORT:-8080}/api/version"
