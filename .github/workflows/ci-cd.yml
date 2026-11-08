@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0 # gitleaks butuh history untuk mendeteksi secret lama
       - name: Gitleaks (container ghcr.io)
         run: |
-          docker run --rm -v "$PWD:/repo:ro" ghcr.io/gitleaks/gitleaks:v8 \
+          docker run --rm -v "$PWD:/repo:ro" ghcr.io/gitleaks/gitleaks:latest \
             detect --source /repo --redact -f text --exit-code 1
 
   backend:
