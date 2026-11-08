@@ -18,7 +18,7 @@ jobs:
     name: 🔐 Secret Scan (gitleaks)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           fetch-depth: 0 # gitleaks butuh history untuk mendeteksi secret lama
       - uses: gitleaks/gitleaks-action@v2
@@ -32,8 +32,8 @@ jobs:
       run:
         working-directory: backend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -54,8 +54,8 @@ jobs:
       run:
         working-directory: frontend
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -75,8 +75,8 @@ jobs:
     name: 🔎 Semgrep (SAST multi-bahasa)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
       - name: Install Semgrep
@@ -91,7 +91,7 @@ jobs:
     name: 🛡️ Trivy (dependency & misconfig scan)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Scan filesystem (vulnerability dependency)
         uses: aquasecurity/trivy-action@0.24.0
         with:
@@ -117,7 +117,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
     runs-on: [self-hosted, linux]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       # .env di server adalah sumber utama (sudah berisi kredensial Postgres
       # shared, HTTP_PORT=8080, dst). Step ini hanya memastikan file ada &
       # menimpa nilai yang MEMANG dikelola via GitHub Actions Variables.
