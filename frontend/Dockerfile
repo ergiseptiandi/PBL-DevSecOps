@@ -1,5 +1,9 @@
 # syntax=docker/dockerfile:1
 
+# ⚠️ BACKEND_URL di-BAKE saat build (dipakai rewrite /api di next.config.ts).
+#    Di-pass dari docker-compose arg: BACKEND_URL=${BACKEND_URL:-http://nginx:80}
+#    Ganti nilai = wajib rebuild image frontend.
+
 FROM node:24-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
@@ -7,7 +11,9 @@ RUN npm ci --no-audit --no-fund
 
 FROM node:24-alpine AS builder
 WORKDIR /app
-ENV NEXT_TELEMETRY_DISABLED=1
+ARG BACKEND_URL=http://nginx:80
+ENV NEXT_TELEMETRY_DISABLED=1 \
+    BACKEND_URL=${BACKEND_URL}
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build

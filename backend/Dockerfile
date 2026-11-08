@@ -2,12 +2,17 @@
 
 FROM python:3.12-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
+# DATABASE_URL di-inject dari docker-compose (Postgres shared):
+#   postgresql://<user>:<pass>@postgres:5432/pbl_devsecops
+# Fallback default app = sqlite lokal (hanya untuk dev tanpa compose).
 WORKDIR /app
 
 COPY requirements.txt ./
-RUN pip install --no-cache-dir --disable-pip-version-check -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY app ./app
 
